@@ -26,12 +26,18 @@ const createApp = (): Application => {
                 // Allow requests with no origin (like mobile apps or curl requests)
                 if (!origin) return callback(null, true);
 
-                if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-                    callback(null, true);
-                } else {
-                    console.log('Blocked by CORS:', origin);
-                    callback(new Error('Not allowed by CORS'));
+                // Check if origin is in the allowed list
+                if (allowedOrigins.indexOf(origin) !== -1) {
+                    return callback(null, true);
                 }
+
+                // Allow dynamic Vercel preview URLs (ending with .vercel.app)
+                if (origin.endsWith('.vercel.app')) {
+                    return callback(null, true);
+                }
+
+                console.log('Blocked by CORS:', origin);
+                callback(new Error('Not allowed by CORS'));
             },
             credentials: true,
         })
