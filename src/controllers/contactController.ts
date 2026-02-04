@@ -136,14 +136,6 @@ export const handleContactForm = (_req: Request, res: Response) => {
         });
     }
 
-    // Log the contact form submission
-    console.log('📧 Contact Form Submission:');
-    console.log(`Name: ${name}`);
-    console.log(`Email: ${email}`);
-    console.log(`Phone: ${phone}`);
-    console.log(`Message: ${message}`);
-    console.log('---');
-
     // Success response
     return res.status(200).json({
         success: true,
