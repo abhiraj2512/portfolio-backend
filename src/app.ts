@@ -12,9 +12,27 @@ const createApp = (): Application => {
 
     // CORS Configuration
     // Allow requests from the frontend
+    // CORS Configuration
+    // Allow requests from local dev and production domain
+    const allowedOrigins = [
+        'http://localhost:5173', // Vite local dev
+        'http://localhost:3000', // React local dev
+        config.frontendUrl,      // Production URL from env
+    ];
+
     app.use(
         cors({
-            origin: config.frontendUrl,
+            origin: (origin, callback) => {
+                // Allow requests with no origin (like mobile apps or curl requests)
+                if (!origin) return callback(null, true);
+
+                if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+                    callback(null, true);
+                } else {
+                    console.log('Blocked by CORS:', origin);
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             credentials: true,
         })
     );
