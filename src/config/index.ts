@@ -18,6 +18,9 @@ const config = {
     // API configuration
     apiVersion: process.env.API_VERSION || 'v1',
 
+    // Database configuration
+    mongoUri: process.env.MONGODB_URI || '',
+
     // Helper methods
     isDevelopment: () => config.nodeEnv === 'development',
     isProduction: () => config.nodeEnv === 'production',

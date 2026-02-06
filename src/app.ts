@@ -36,7 +36,6 @@ const createApp = (): Application => {
                     return callback(null, true);
                 }
 
-                console.log('Blocked by CORS:', origin);
                 callback(new Error('Not allowed by CORS'));
             },
             credentials: true,

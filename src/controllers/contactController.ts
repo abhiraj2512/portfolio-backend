@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import Contact from '../models/Contact';
+
 
 /**
  * Contact Form Request Body Type
@@ -77,68 +79,86 @@ const isValidMessage = (message: string): boolean => {
  * POST /api/contact
  * Body: { name, email, message, phone }
  */
-export const handleContactForm = (_req: Request, res: Response) => {
-    const { name, email, message, phone } = _req.body as ContactRequest;
+export const handleContactForm = async (_req: Request, res: Response) => {
+    try {
+        const { name, email, message, phone } = _req.body as ContactRequest;
 
-    // Validation: Check if all fields are provided
-    if (!name || !email || !message || !phone) {
-        return res.status(400).json({
+        // Validation: Check if all fields are provided
+        if (!name || !email || !message || !phone) {
+            return res.status(400).json({
+                success: false,
+                error: 'All fields are required: name, email, phone, and message',
+            });
+        }
+
+        // Validation: Check if fields are strings
+        if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string' || typeof phone !== 'string') {
+            return res.status(400).json({
+                success: false,
+                error: 'All fields must be valid strings',
+            });
+        }
+
+        // Validation: Check if fields are not just whitespace
+        if (name.trim() === '' || email.trim() === '' || message.trim() === '' || phone.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'All fields must contain valid content (not just whitespace)',
+            });
+        }
+
+        // Validation: Validate name format (alphabets and spaces only, 2-50 chars)
+        if (!isValidName(name)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Please provide a valid name (alphabets only)',
+            });
+        }
+
+        // Validation: Validate email format
+        if (!isValidEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Please provide a valid email address',
+            });
+        }
+
+        // Validation: Validate phone format (digits only, 8-15 digits)
+        if (!isValidPhone(phone)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Please provide a valid phone number',
+            });
+        }
+
+        // Validation: Validate message (not empty, 1-1000 chars)
+        if (!isValidMessage(message)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Message cannot be empty',
+            });
+        }
+
+        // Save to MongoDB
+        const contact = new Contact({
+            name: name.trim(),
+            email: email.trim(),
+            phone: phone.trim(),
+            message: message.trim(),
+        });
+
+        const savedContact = await contact.save();
+
+        // Success response
+        return res.status(200).json({
+            success: true,
+            message: 'Message sent successfully',
+            contactId: savedContact._id,
+        });
+    } catch (error) {
+        return res.status(500).json({
             success: false,
-            error: 'All fields are required: name, email, phone, and message',
+            error: 'Failed to process your message. Please try again later.',
         });
     }
-
-    // Validation: Check if fields are strings
-    if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string' || typeof phone !== 'string') {
-        return res.status(400).json({
-            success: false,
-            error: 'All fields must be valid strings',
-        });
-    }
-
-    // Validation: Check if fields are not just whitespace
-    if (name.trim() === '' || email.trim() === '' || message.trim() === '' || phone.trim() === '') {
-        return res.status(400).json({
-            success: false,
-            error: 'All fields must contain valid content (not just whitespace)',
-        });
-    }
-
-    // Validation: Validate name format (alphabets and spaces only, 2-50 chars)
-    if (!isValidName(name)) {
-        return res.status(400).json({
-            success: false,
-            error: 'Please provide a valid name (alphabets only)',
-        });
-    }
-
-    // Validation: Validate email format
-    if (!isValidEmail(email)) {
-        return res.status(400).json({
-            success: false,
-            error: 'Please provide a valid email address',
-        });
-    }
-
-    // Validation: Validate phone format (digits only, 8-15 digits)
-    if (!isValidPhone(phone)) {
-        return res.status(400).json({
-            success: false,
-            error: 'Please provide a valid phone number',
-        });
-    }
-
-    // Validation: Validate message (not empty, 1-1000 chars)
-    if (!isValidMessage(message)) {
-        return res.status(400).json({
-            success: false,
-            error: 'Message cannot be empty',
-        });
-    }
-
-    // Success response
-    return res.status(200).json({
-        success: true,
-        message: 'Message sent successfully',
-    });
 };
