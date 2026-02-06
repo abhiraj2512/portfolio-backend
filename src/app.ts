@@ -48,8 +48,8 @@ const createApp = (): Application => {
     app.use(express.urlencoded({ extended: true }));
 
     // API Routes
-    // All routes are prefixed with /api
-    app.use('/api', routes);
+    // All routes are prefixed with /api/v1 for versioning
+    app.use('/api/v1', routes);
 
     // 404 Handler
     // Must be after all other routes
