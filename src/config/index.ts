@@ -21,6 +21,9 @@ const config = {
     // Database configuration
     mongoUri: process.env.MONGODB_URI || '',
 
+    // Admin configuration
+    adminSecret: process.env.ADMIN_SECRET || '',
+
     // Helper methods
     isDevelopment: () => config.nodeEnv === 'development',
     isProduction: () => config.nodeEnv === 'production',
